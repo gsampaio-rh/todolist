@@ -7,9 +7,9 @@ pipeline {
 
     environment {
         // Global Vars
-        NAMESPACE_PREFIX="<YOUR_NAME>"
-        GITLAB_DOMAIN = "<GITLAB_FQDN>"
-        GITLAB_USERNAME = "<GITLAB_USERNAME>"
+        NAMESPACE_PREFIX="gabriel"
+        GITLAB_DOMAIN = "gitlab.apps.san-0ba6.gpte.rht-labs.com"
+        GITLAB_USERNAME = "lab31"
 
         PIPELINES_NAMESPACE = "${NAMESPACE_PREFIX}-ci-cd"
         APP_NAME = "todolist"

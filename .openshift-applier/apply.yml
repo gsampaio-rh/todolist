@@ -2,7 +2,7 @@
 - name: Build and Deploy todolist
   hosts: app
   vars:
-    namespace_prefix: '<YOUR_NAME>'
+    namespace_prefix: 'gabriel'
     ci_cd_namespace: '{{ namespace_prefix }}-ci-cd'
     dev_namespace: '{{ namespace_prefix }}-dev'
     test_namespace: '{{ namespace_prefix }}-test'
