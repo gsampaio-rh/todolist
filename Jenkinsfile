@@ -69,7 +69,7 @@ pipeline {
         stage("node-build") {
             agent {
                 node {
-                    label "jenkins-slave-npm"  
+                    label "jenkins-slave-npm"
                 }
             }
             steps {
@@ -79,7 +79,7 @@ pipeline {
                 sh 'npm install'
 
                 echo '### Running tests ###'
-                // sh 'npm run test:all:ci'
+                sh 'npm run test:all:ci'
 
                 echo '### Running build ###'
                 sh 'npm run build:ci'
@@ -94,7 +94,9 @@ pipeline {
                 always {
                     archive "**"
                     // ADD TESTS REPORTS HERE
-            
+                    junit 'test-report.xml'
+                    junit 'reports/server/mocha/test-results.xml'
+
                     // publish html
 
                 }
@@ -116,7 +118,7 @@ pipeline {
         stage("node-bake") {
             agent {
                 node {
-                    label "master"  
+                    label "master"
                 }
             }
             when {
@@ -146,7 +148,7 @@ pipeline {
         stage("node-deploy") {
             agent {
                 node {
-                    label "master"  
+                    label "master"
                 }
             }
             when {
@@ -165,11 +167,11 @@ pipeline {
                     oc rollout latest dc/${APP_NAME}
                 '''
                 echo '### Verify OCP Deployment ###'
-                openshiftVerifyDeployment depCfg: env.APP_NAME, 
-                    namespace: env.PROJECT_NAMESPACE, 
-                    replicaCount: '1', 
-                    verbose: 'false', 
-                    verifyReplicaCount: 'true', 
+                openshiftVerifyDeployment depCfg: env.APP_NAME,
+                    namespace: env.PROJECT_NAMESPACE,
+                    replicaCount: '1',
+                    verbose: 'false',
+                    verifyReplicaCount: 'true',
                     waitTime: '',
                     waitUnit: 'sec'
             }
