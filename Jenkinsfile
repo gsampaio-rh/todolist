@@ -176,5 +176,29 @@ pipeline {
                     waitUnit: 'sec'
             }
         }
+        stage("e2e test") {
+          agent {
+                node {
+                    label "jenkins-slave-npm"
+                }
+            }
+            when {
+                expression { GIT_BRANCH ==~ /(.*master|.*develop)/ }
+            }
+            steps {
+              unstash 'source'
+
+              echo '### Install deps ###'
+              sh 'npm install'
+
+              echo '### Running end to end tests ###'
+              sh 'npm run e2e:jenkins'
+            }
+            post {
+                always {
+                    junit 'reports/e2e/specs/*.xml'
+                }
+            }
+        }
     }
 }
