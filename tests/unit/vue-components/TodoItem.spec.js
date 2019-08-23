@@ -80,6 +80,6 @@ describe("Important Flag button ", () => {
     // TODO - test goes here!
     const input = wrapper.find(".important-flag");
     input.trigger("click");
-    expect(methods.markImportant).toHaveBeenCalled();
+    expect(methods.markImportant).not.toHaveBeenCalled();
   });
 });
