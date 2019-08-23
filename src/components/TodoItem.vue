@@ -20,7 +20,7 @@ import Vue from "vue";
 import { Checkbox, Radio } from "vue-checkbox-radio";
 Vue.component("checkbox", Checkbox);
 Vue.component("radio", Radio);
-let biscuits;
+// let biscuits;
 
 export default {
   name: "TodoItem",
