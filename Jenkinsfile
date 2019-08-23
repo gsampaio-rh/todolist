@@ -78,6 +78,9 @@ pipeline {
                 echo '### Install deps ###'
                 sh 'npm install'
 
+                echo '### Running linting ###'
+                sh 'npm run lint'
+
                 echo '### Running tests ###'
                 sh 'npm run test:all:ci'
 
@@ -98,6 +101,14 @@ pipeline {
                     junit 'reports/server/mocha/test-results.xml'
 
                     // publish html
+                    publishHTML target: [
+                      allowMissing: false,
+                      alwaysLinkToLastBuild: false,
+                      keepAll: true,
+                      reportDir: 'reports/coverage',
+                      reportFiles: 'index.html',
+                      reportName: 'Code Coverage'
+                    ]
 
                 }
                 success {
