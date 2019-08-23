@@ -200,5 +200,35 @@ pipeline {
                 }
             }
         }
+        stage('Arachni Scan') {
+          agent {
+              node {
+                  label "jenkins-slave-arachni"
+              }
+          }
+          when {
+              expression { GIT_BRANCH ==~ /(.*master|.*develop)/ }
+          }
+          steps {
+              sh '''
+                  /arachni/bin/arachni http://${E2E_TEST_ROUTE} --report-save-path=arachni-report.afr
+                  /arachni/bin/arachni_reporter arachni-report.afr --reporter=xunit:outfile=report.xml --reporter=html:outfile=web-report.zip
+                  unzip web-report.zip -d arachni-web-report
+              '''
+          }
+          post {
+              always {
+                  junit 'report.xml'
+                  publishHTML target: [
+                      allowMissing: false,
+                      alwaysLinkToLastBuild: false,
+                      keepAll: true,
+                      reportDir: 'arachni-web-report',
+                      reportFiles: 'index.html',
+                      reportName: 'Arachni Web Crawl'
+                      ]
+              }
+          }
+      }
     }
 }
