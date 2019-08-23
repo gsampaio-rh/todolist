@@ -55,13 +55,14 @@ describe("Important Flag button ", () => {
     const wrapper = mount(TodoItem, {
       propsData: { todoItem: importantTodo }
     });
-    // TODO - test goes here!
+    expect(wrapper.find(".important-flag").exists()).toBe(true);
   });
   it("should set the colour to red when true", () => {
     const wrapper = mount(TodoItem, {
       propsData: { todoItem: importantTodo }
     });
     // TODO - test goes here!
+    expect(wrapper.find(".red-flag").exists()).toBe(true);
   });
   it("should set the colour to not red when false", () => {
     importantTodo.important = false;
@@ -69,6 +70,7 @@ describe("Important Flag button ", () => {
       propsData: { todoItem: importantTodo }
     });
     // TODO - test goes here!
+    expect(wrapper.find(".red-flag").exists()).toBe(false);
   });
   it("call makImportant when clicked", () => {
     const wrapper = mount(TodoItem, {
@@ -76,5 +78,8 @@ describe("Important Flag button ", () => {
       propsData: { todoItem: importantTodo }
     });
     // TODO - test goes here!
+    const input = wrapper.find(".important-flag");
+    input.trigger("click");
+    expect(methods.markImportant).toHaveBeenCalled();
   });
 });

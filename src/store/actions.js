@@ -46,7 +46,8 @@ export default {
     // debugger
     const todo = {
       title: state.newTodo,
-      completed: false
+      completed: false,
+      important: false
     };
     // console.info("TESTINT BLAH BLAH ", todo);
     return axios
