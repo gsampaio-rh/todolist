@@ -3,7 +3,7 @@
         <div class="xofyDone">
             <span> {{sumDoneTodoItems(todos)}} out of {{this.todos.length}} done. </span>
             <md-button class="md-raised" v-on:click="clearDoneTodos()">Clear Done</md-button>
-            <md-button class="md-raised" v-on:click="clearTodos()">Clear all</md-button>
+            <md-button id="clear-all" class="md-raised" v-on:click="clearTodos()">Clear all</md-button>
         </div>
     </div>
 </template>
