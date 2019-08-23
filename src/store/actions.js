@@ -100,6 +100,7 @@ export default {
     let i = state.todos.findIndex(todo => todo._id === id);
     if (important) {
       // TODO - add commit imporant here!
+      commit("MARK_TODO_IMPORTANT", i);
     } else {
       commit("MARK_TODO_COMPLETED", i);
     }
