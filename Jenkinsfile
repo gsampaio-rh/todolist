@@ -58,6 +58,8 @@ pipeline {
               expression { GIT_BRANCH ==~ /(.*develop)/ }
             }
             steps {
+                // send build started notifications
+                slackSend (color: '#FFFF00', message: "STARTED: Job")
                 script {
                     // Arbitrary Groovy Script executions can do in script tags
                     env.PROJECT_NAMESPACE = "${NAMESPACE_PREFIX}-dev"
@@ -70,7 +72,7 @@ pipeline {
             input {
                 message "Should we continue?"
                 ok "Yes, we should."
-                submitter "alice,bob"
+                submitter "gsampaio-redhat.com-admin"
                 parameters {
                     string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
                 }
@@ -86,6 +88,7 @@ pipeline {
                 }
             }
             steps {
+                slackSend (color: '#FFFF00', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                 sh 'printenv'
 
                 echo '### Install deps ###'
