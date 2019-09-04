@@ -59,7 +59,7 @@ pipeline {
             }
             steps {
                 // send build started notifications
-                slackSend (color: '#FFFF00', message: "STARTED: Job")
+                slackSend (color: '#0033ff', message: "*Build Started* BUILD NUMBER - ${env.BUILD_NUMBER} BUILD ID - ${env.BUILD_ID} BUILD DISPLAY NAME - ${env.BUILD_DISPLAY_NAME} JOB NAME - ${env.JOB_NAME} JOB BASE NAME - ${env.JOB_BASE_NAME} BUILD TAG - ${env.BUILD_TAG} URL - ${env.BUILD_URL}")
                 script {
                     // Arbitrary Groovy Script executions can do in script tags
                     env.PROJECT_NAMESPACE = "${NAMESPACE_PREFIX}-dev"
@@ -68,17 +68,17 @@ pipeline {
                 }
             }
         }
-        stage('Example') {
+        stage('Slack - Start Build') {
             input {
-                message "Should we continue?"
-                ok "Yes, we should."
+                message "Start build?"
+                ok "Yes"
                 submitter "gsampaio-redhat.com-admin"
                 parameters {
                     string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
                 }
             }
             steps {
-                echo "Hello, ${PERSON}, nice to meet you."
+                echo "Build Started BUILD NUMBER - {env.BUILD_NUMBER} BUILD ID - {env.BUILD_ID} BUILD DISPLAY NAME - {env.BUILD_DISPLAY_NAME}"
             }
         }
         stage("node-build") {
