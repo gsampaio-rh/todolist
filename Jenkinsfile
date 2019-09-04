@@ -37,14 +37,14 @@ pipeline {
                 }
             }
             steps {
-                slackSend (color: '#80B0C4', message: """*[REQUEST]* *START BUILD ?* ${env.BUILD_URL} 
+                slackSend (color: '#80B0C4', message: """*[REQUEST]* *START BUILD ${env.JOB_BASE_NAME} ${env.BUILD_DISPLAY_NAME}?* ${env.BUILD_URL} 
                 ```${env.JOB_BASE_NAME} ${env.BUILD_DISPLAY_NAME} \n${env.JOB_URL}```""")
                 // send build started notifications
                 script {
                     def IS_APPROVED = input(
                         message: "Approve release?",
                         ok: "y",
-                        submitter: "admin",
+                        submitter: "gsampaio-redhat.com",
                         parameters: [
                             string(name: 'IS_APPROVED', defaultValue: 'y', description: 'Start Build?')
                         ]
