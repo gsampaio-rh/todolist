@@ -40,9 +40,9 @@ pipeline {
             // send build started notifications
             script {
                 def IS_APPROVED = input(
-                    message: "Approve release?"
-                    ok: "y"
-                    submitter: "admin"
+                    message: "Approve release?",
+                    ok: "y",
+                    submitter: "admin",
                     parameters: [
                         string(name: 'IS_APPROVED', defaultValue: 'y', description: 'Start Build?')
                     ]
