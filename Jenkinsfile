@@ -28,34 +28,35 @@ pipeline {
         ansiColor('xterm')
         timestamps()
     }
-    stage("Slack Start Build") {
-        agent {
-            node {
-                label "master"
+
+    stages {
+        stage("Slack Start Build") {
+            agent {
+                node {
+                    label "master"
+                }
             }
-        }
-        steps {
-            slackSend (color: '#80B0C4', message: """*[REQUEST]* *START BUILD ?* ${env.BUILD_URL} 
-            ```${env.JOB_BASE_NAME} ${env.BUILD_DISPLAY_NAME} \n${env.JOB_URL}```""")
-            // send build started notifications
-            script {
-                def IS_APPROVED = input(
-                    message: "Approve release?",
-                    ok: "y",
-                    submitter: "admin",
-                    parameters: [
-                        string(name: 'IS_APPROVED', defaultValue: 'y', description: 'Start Build?')
-                    ]
-                )
-                if (IS_APPROVED != 'y') {
-                    currentBuild.result = "ABORTED"
-                    error "User cancelled"
+            steps {
+                slackSend (color: '#80B0C4', message: """*[REQUEST]* *START BUILD ?* ${env.BUILD_URL} 
+                ```${env.JOB_BASE_NAME} ${env.BUILD_DISPLAY_NAME} \n${env.JOB_URL}```""")
+                // send build started notifications
+                script {
+                    def IS_APPROVED = input(
+                        message: "Approve release?",
+                        ok: "y",
+                        submitter: "admin",
+                        parameters: [
+                            string(name: 'IS_APPROVED', defaultValue: 'y', description: 'Start Build?')
+                        ]
+                    )
+                    if (IS_APPROVED != 'y') {
+                        currentBuild.result = "ABORTED"
+                        error "User cancelled"
+                    }
                 }
             }
         }
-    }
-
-    stages {
+        
         stage("prepare environment for master deploy") {
             agent {
                 node {
