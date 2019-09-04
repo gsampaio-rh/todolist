@@ -59,12 +59,12 @@ pipeline {
             }
             steps {
                 // send build started notifications
-                slackSend (color: '#80B0C4', message: """*[STARTING Build]* 
-                BUILD DISPLAY NAME - ${env.BUILD_DISPLAY_NAME} 
+                slackSend (color: '#80B0C4', message: """*[STARTING Build]* ${env.BUILD_URL} 
+                ```BUILD DISPLAY NAME - ${env.BUILD_DISPLAY_NAME} 
                 JOB BASE NAME - ${env.JOB_BASE_NAME} 
                 BUILD TAG - ${env.BUILD_TAG} 
                 JOB URL - ${env.JOB_URL} 
-                INPUT URL - ${env.BUILD_URL}input/""")
+                INPUT URL - ${env.BUILD_URL}input/```""")
                 script {
                     // Arbitrary Groovy Script executions can do in script tags
                     env.PROJECT_NAMESPACE = "${NAMESPACE_PREFIX}-dev"
@@ -100,10 +100,10 @@ pipeline {
                 sh 'npm install'
 
                 echo '### Running linting ###'
-                sh 'npm run lint'
+                //sh 'npm run lint'
 
                 echo '### Running tests ###'
-                sh 'npm run test:all:ci'
+                //sh 'npm run test:all:ci'
 
                 echo '### Running build ###'
                 sh 'npm run build:ci'
@@ -117,19 +117,19 @@ pipeline {
             post {
                 always {
                     archive "**"
-                    // ADD TESTS REPORTS HERE
-                    junit 'test-report.xml'
-                    junit 'reports/server/mocha/test-results.xml'
+                    // // ADD TESTS REPORTS HERE
+                    // junit 'test-report.xml'
+                    // junit 'reports/server/mocha/test-results.xml'
 
-                    // publish html
-                    publishHTML target: [
-                      allowMissing: false,
-                      alwaysLinkToLastBuild: false,
-                      keepAll: true,
-                      reportDir: 'reports/coverage',
-                      reportFiles: 'index.html',
-                      reportName: 'Code Coverage'
-                    ]
+                    // // publish html
+                    // publishHTML target: [
+                    //   allowMissing: false,
+                    //   alwaysLinkToLastBuild: false,
+                    //   keepAll: true,
+                    //   reportDir: 'reports/coverage',
+                    //   reportFiles: 'index.html',
+                    //   reportName: 'Code Coverage'
+                    // ]
 
                 }
                 success {
@@ -210,59 +210,59 @@ pipeline {
                     waitUnit: 'sec'
             }
         }
-        stage("e2e test") {
-          agent {
-                node {
-                    label "jenkins-slave-npm"
-                }
-            }
-            when {
-                expression { GIT_BRANCH ==~ /(.*master|.*develop)/ }
-            }
-            steps {
-              unstash 'source'
+        // stage("e2e test") {
+        //   agent {
+        //         node {
+        //             label "jenkins-slave-npm"
+        //         }
+        //     }
+        //     when {
+        //         expression { GIT_BRANCH ==~ /(.*master|.*develop)/ }
+        //     }
+        //     steps {
+        //       unstash 'source'
 
-              echo '### Install deps ###'
-              sh 'npm install'
+        //       echo '### Install deps ###'
+        //       sh 'npm install'
 
-              echo '### Running end to end tests ###'
-              sh 'npm run e2e:jenkins'
-            }
-            post {
-                always {
-                    junit 'reports/e2e/specs/*.xml'
-                }
-            }
-        }
-        stage('Arachni Scan') {
-          agent {
-              node {
-                  label "jenkins-slave-arachni"
-              }
-          }
-          when {
-              expression { GIT_BRANCH ==~ /(.*master|.*develop)/ }
-          }
-          steps {
-              sh '''
-                  /arachni/bin/arachni http://${E2E_TEST_ROUTE} --report-save-path=arachni-report.afr
-                  /arachni/bin/arachni_reporter arachni-report.afr --reporter=xunit:outfile=report.xml --reporter=html:outfile=web-report.zip
-                  unzip web-report.zip -d arachni-web-report
-              '''
-          }
-          post {
-              always {
-                  junit 'report.xml'
-                  publishHTML target: [
-                      allowMissing: false,
-                      alwaysLinkToLastBuild: false,
-                      keepAll: true,
-                      reportDir: 'arachni-web-report',
-                      reportFiles: 'index.html',
-                      reportName: 'Arachni Web Crawl'
-                      ]
-              }
-          }
-      }
+        //       echo '### Running end to end tests ###'
+        //       sh 'npm run e2e:jenkins'
+        //     }
+        //     post {
+        //         always {
+        //             junit 'reports/e2e/specs/*.xml'
+        //         }
+        //     }
+        // }
+        // stage('Arachni Scan') {
+        //   agent {
+        //       node {
+        //           label "jenkins-slave-arachni"
+        //       }
+        //   }
+        //   when {
+        //       expression { GIT_BRANCH ==~ /(.*master|.*develop)/ }
+        //   }
+        //   steps {
+        //       sh '''
+        //           /arachni/bin/arachni http://${E2E_TEST_ROUTE} --report-save-path=arachni-report.afr
+        //           /arachni/bin/arachni_reporter arachni-report.afr --reporter=xunit:outfile=report.xml --reporter=html:outfile=web-report.zip
+        //           unzip web-report.zip -d arachni-web-report
+        //       '''
+        //   }
+        //   post {
+        //       always {
+        //           junit 'report.xml'
+        //           publishHTML target: [
+        //               allowMissing: false,
+        //               alwaysLinkToLastBuild: false,
+        //               keepAll: true,
+        //               reportDir: 'arachni-web-report',
+        //               reportFiles: 'index.html',
+        //               reportName: 'Arachni Web Crawl'
+        //               ]
+        //       }
+        //   }
+        // }
     }
 }
