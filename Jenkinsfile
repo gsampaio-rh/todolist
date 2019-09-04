@@ -59,7 +59,15 @@ pipeline {
             }
             steps {
                 // send build started notifications
-                slackSend (color: '#D4DADF', message: "*Build Started* BUILD NUMBER - ${env.BUILD_NUMBER} BUILD ID - ${env.BUILD_ID} BUILD DISPLAY NAME - ${env.BUILD_DISPLAY_NAME} JOB NAME - ${env.JOB_NAME} JOB BASE NAME - ${env.JOB_BASE_NAME} BUILD TAG - ${env.BUILD_TAG} URL - ${env.BUILD_URL} INPUT URL - ${env.BUILD_URL}/input/")
+                slackSend (color: '#80B0C4', message: """*[STARTING Build]* 
+                    BUILD NUMBER - ${env.BUILD_NUMBER} 
+                    BUILD ID - ${env.BUILD_ID} 
+                    BUILD DISPLAY NAME - ${env.BUILD_DISPLAY_NAME} 
+                    JOB NAME - ${env.JOB_NAME} 
+                    JOB BASE NAME - ${env.JOB_BASE_NAME} 
+                    BUILD TAG - ${env.BUILD_TAG} 
+                    URL - ${env.BUILD_URL} 
+                    INPUT URL - ${env.BUILD_URL}/input/""")
                 script {
                     // Arbitrary Groovy Script executions can do in script tags
                     env.PROJECT_NAMESPACE = "${NAMESPACE_PREFIX}-dev"
