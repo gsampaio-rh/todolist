@@ -58,7 +58,6 @@ pipeline {
               expression { GIT_BRANCH ==~ /(.*develop)/ }
             }
             steps {
-                timeout(time: 10, unit: "MINUTES")
                 // send build started notifications
                 slackSend (color: '#80B0C4', message: """*[STARTING Build]* 
                 BUILD DISPLAY NAME - ${env.BUILD_DISPLAY_NAME} 
@@ -134,6 +133,7 @@ pipeline {
 
                 }
                 success {
+                    slackSend (color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                     echo "Git tagging"
                     sh'''
                         git config --global user.email "jenkins@jmail.com"
@@ -143,6 +143,7 @@ pipeline {
                     '''
                 }
                 failure {
+                    slackSend (color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                     echo "FAILURE"
                 }
             }
