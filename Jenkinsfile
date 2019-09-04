@@ -44,7 +44,7 @@ pipeline {
                     def IS_APPROVED = input(
                         message: "Approve release?",
                         ok: "y",
-                        submitter: "gsampaio-redhat.com",
+                        submitter: "gsampaio",
                         parameters: [
                             string(name: 'IS_APPROVED', defaultValue: 'y', description: 'Start Build?')
                         ]
