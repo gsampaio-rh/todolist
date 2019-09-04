@@ -56,7 +56,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage("prepare environment for master deploy") {
             agent {
                 node {
@@ -124,23 +124,22 @@ pipeline {
             }
             // Post can be used both on individual stages and for the entire build.
             post {
-                always {
-                    //archive "**"
-                    // // ADD TESTS REPORTS HERE
-                    // junit 'test-report.xml'
-                    // junit 'reports/server/mocha/test-results.xml'
+                // always {
+                //     //archive "**"
+                //     // // ADD TESTS REPORTS HERE
+                //     // junit 'test-report.xml'
+                //     // junit 'reports/server/mocha/test-results.xml'
 
-                    // // publish html
-                    // publishHTML target: [
-                    //   allowMissing: false,
-                    //   alwaysLinkToLastBuild: false,
-                    //   keepAll: true,
-                    //   reportDir: 'reports/coverage',
-                    //   reportFiles: 'index.html',
-                    //   reportName: 'Code Coverage'
-                    // ]
-
-                }
+                //     // // publish html
+                //     // publishHTML target: [
+                //     //   allowMissing: false,
+                //     //   alwaysLinkToLastBuild: false,
+                //     //   keepAll: true,
+                //     //   reportDir: 'reports/coverage',
+                //     //   reportFiles: 'index.html',
+                //     //   reportName: 'Code Coverage'
+                //     // ]
+                // }
                 success {
                     slackSend (color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                     echo "Git tagging"
