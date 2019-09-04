@@ -28,6 +28,32 @@ pipeline {
         ansiColor('xterm')
         timestamps()
     }
+    stage("Slack Start Build") {
+        agent {
+            node {
+                label "master"
+            }
+        }
+        steps {
+            slackSend (color: '#80B0C4', message: """*[REQUEST]* *START BUILD ?* ${env.BUILD_URL} 
+            ```${env.JOB_BASE_NAME} ${env.BUILD_DISPLAY_NAME} \n${env.JOB_URL}```""")
+            // send build started notifications
+            script {
+                def IS_APPROVED = input(
+                    message: "Approve release?"
+                    ok: "y"
+                    submitter: "admin"
+                    parameters: [
+                        string(name: 'IS_APPROVED', defaultValue: 'y', description: 'Start Build?')
+                    ]
+                )
+                if (IS_APPROVED != 'y') {
+                    currentBuild.result = "ABORTED"
+                    error "User cancelled"
+                }
+            }
+        }
+    }
 
     stages {
         stage("prepare environment for master deploy") {
@@ -59,31 +85,13 @@ pipeline {
             }
             steps {
                 // send build started notifications
-                slackSend (color: '#80B0C4', message: """*[STARTING Build]* ${env.BUILD_URL} 
-                ```BUILD DISPLAY NAME - ${env.BUILD_DISPLAY_NAME}
-                JOB BASE NAME - ${env.JOB_BASE_NAME}
-                BUILD TAG - ${env.BUILD_TAG}
-                JOB URL - ${env.JOB_URL}
-                INPUT URL - ${env.BUILD_URL}input/```""")
+                
                 script {
                     // Arbitrary Groovy Script executions can do in script tags
                     env.PROJECT_NAMESPACE = "${NAMESPACE_PREFIX}-dev"
                     env.NODE_ENV = "dev"
                     env.E2E_TEST_ROUTE = "oc get route/${APP_NAME} --template='{{.spec.host}}' -n ${PROJECT_NAMESPACE}".execute().text.minus("'").minus("'")
                 }
-            }
-        }
-        stage('Slack - Start Build') {
-            input {
-                message "Start build?"
-                ok "Yes"
-                submitter "gsampaio-redhat.com-admin"
-                parameters {
-                    string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
-                }
-            }
-            steps {
-                echo "Build Started BUILD NUMBER - {env.BUILD_NUMBER} BUILD ID - {env.BUILD_ID} BUILD DISPLAY NAME - {env.BUILD_DISPLAY_NAME}"
             }
         }
         stage("node-build") {
@@ -116,7 +124,7 @@ pipeline {
             // Post can be used both on individual stages and for the entire build.
             post {
                 always {
-                    archive "**"
+                    //archive "**"
                     // // ADD TESTS REPORTS HERE
                     // junit 'test-report.xml'
                     // junit 'reports/server/mocha/test-results.xml'
