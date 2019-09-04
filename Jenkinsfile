@@ -8,8 +8,8 @@ pipeline {
     environment {
         // Global Vars
         NAMESPACE_PREFIX="gabriel"
-        GITLAB_DOMAIN = "gitlab.apps.argdo500.rht-labs.com"
-        GITLAB_USERNAME = "lab30"
+        GITLAB_DOMAIN = "github.com"
+        GITLAB_USERNAME = "gsampaio-rh"
 
         PIPELINES_NAMESPACE = "${NAMESPACE_PREFIX}-ci-cd"
         APP_NAME = "todolist"
@@ -60,10 +60,10 @@ pipeline {
             steps {
                 // send build started notifications
                 slackSend (color: '#80B0C4', message: """*[STARTING Build]* ${env.BUILD_URL} 
-                ```BUILD DISPLAY NAME - ${env.BUILD_DISPLAY_NAME} 
-                JOB BASE NAME - ${env.JOB_BASE_NAME} 
-                BUILD TAG - ${env.BUILD_TAG} 
-                JOB URL - ${env.JOB_URL} 
+                ```BUILD DISPLAY NAME - ${env.BUILD_DISPLAY_NAME}
+                JOB BASE NAME - ${env.JOB_BASE_NAME}
+                BUILD TAG - ${env.BUILD_TAG}
+                JOB URL - ${env.JOB_URL}
                 INPUT URL - ${env.BUILD_URL}input/```""")
                 script {
                     // Arbitrary Groovy Script executions can do in script tags
