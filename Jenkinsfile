@@ -6,10 +6,10 @@ pipeline {
     }
 
     environment {
-        // GLobal Vars
-        NAMESPACE_PREFIX="<YOUR_NAME>"
-        GITLAB_DOMAIN = "gitlab.apps.change.me.com"
-        GITLAB_PROJECT = "<GIT_USERNAME>"
+        // Global Vars
+        NAMESPACE_PREFIX="gabriel"
+        GITLAB_DOMAIN = "github.com"
+        GITLAB_USERNAME = "gsampaio-rh"
 
         PIPELINES_NAMESPACE = "${NAMESPACE_PREFIX}-ci-cd"
         APP_NAME = "todolist"
@@ -18,7 +18,7 @@ pipeline {
         JOB_NAME = "${JOB_NAME}".replace("/", "-")
 
         GIT_SSL_NO_VERIFY = true
-        GIT_CREDENTIALS = credentials('jenkins-git-creds')
+        GIT_CREDENTIALS = credentials("${NAMESPACE_PREFIX}-ci-cd-gitlab-auth")
     }
 
     // The options directive is for configuration that applies to the whole job.
@@ -30,6 +30,34 @@ pipeline {
     }
 
     stages {
+        stage("Slack Start Build") {
+            agent {
+                node {
+                    label "master"
+                }
+            }
+            steps {
+                slackSend (color: '#80B0C4', message: """alsdkjlasdjasldajsldkasjldkasjldkasjdlaskjdlaskjdlaskjdlaksjdlaskdjalskdjasldkjaslkdjalskdjlaskjdlaksjdlaksjdlsaalsdkjlasdjasldajsldkasjldkasjldkasjdlaskjdlaskjdlaskjdlaksjdlaskdjalskdjasldkjaslkdjalskdjlaskjdlaksjdlaksjdlsaalsdkjlasdjasldajsldkasjldkasjldkasjdlaskjdlaskjdlaskjdlaksjdlaskdjalskdjasldkjaslkdjalskdjlaskjdlaksjdlaksjdlsaalsdkjlasdjasldajsldkasjldkasjldkasjdlaskjdlaskjdlaskjdlaksjdlaskdjalskdjasldkjaslkdjalskdjlaskjdlaksjdlaksjdlsaalsdkjlasdjasldajsldkasjldkasjldkasjdlaskjdlaskjdlaskjdlaksjdlaskdjalskdjasldkjaslkdjalskdjlaskjdlaksjdlaksjdlsaalsdkjlasdjasldajsldkasjldkasjldkasjdlaskjdlaskjdlaskjdlaksjdlaskdjalskdjasldkjaslkdjalskdjlaskjdlaksjdlaksjdlsaalsdkjlasdjasldajsldkasjldkasjldkasjdlaskjdlaskjdlaskjdlaksjdlaskdjalskdjasldkjaslkdjalskdjlaskjdlaksjdlaksjdlsaalsdkjlasdjasldajsldkasjldkasjldkasjdlaskjdlaskjdlaskjdlaksjdlaskdjalskdjasldkjaslkdjalskdjlaskjdlaksjdlaksjdlsa""")
+                slackSend (color: '#80B0C4', message: """*[REQUEST] TO START BUILD \n${env.JOB_BASE_NAME} ${env.BUILD_DISPLAY_NAME}?* ${env.BUILD_URL}
+                    ```${env.JOB_BASE_NAME} ${env.BUILD_DISPLAY_NAME} \n${env.JOB_URL}```""")
+                // send build started notifications
+                script {
+                    def IS_APPROVED = input(
+                        message: "Approve release?",
+                        ok: "y",
+                        submitter: "gsampaio-redhat.com-admin",
+                        parameters: [
+                            string(name: 'IS_APPROVED', defaultValue: 'y', description: 'Start Build?')
+                        ]
+                    )
+                    if (IS_APPROVED != 'y') {
+                        currentBuild.result = "ABORTED"
+                        error "User cancelled"
+                    }
+                }
+            }
+        }
+
         stage("prepare environment for master deploy") {
             agent {
                 node {
@@ -58,6 +86,8 @@ pipeline {
               expression { GIT_BRANCH ==~ /(.*develop)/ }
             }
             steps {
+                // send build started notifications
+                
                 script {
                     // Arbitrary Groovy Script executions can do in script tags
                     env.PROJECT_NAMESPACE = "${NAMESPACE_PREFIX}-dev"
@@ -69,20 +99,21 @@ pipeline {
         stage("node-build") {
             agent {
                 node {
-                    label "jenkins-slave-npm"  
+                    label "jenkins-slave-npm"
                 }
             }
             steps {
-                // git branch: 'develop',
-                //     credentialsId: 'jenkins-git-creds',
-                //     url: 'https://gitlab-${NAMESPACE_PREFIX}-ci-cd.apps.somedomain.com/${NAMESPACE_PREFIX}/todolist.git'
+                slackSend (color: '#FFFF00', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                 sh 'printenv'
 
                 echo '### Install deps ###'
                 sh 'npm install'
 
+                echo '### Running linting ###'
+                //sh 'npm run lint'
+
                 echo '### Running tests ###'
-                sh 'npm run test:all:ci'
+                //sh 'npm run test:all:ci'
 
                 echo '### Running build ###'
                 sh 'npm run build:ci'
@@ -94,24 +125,34 @@ pipeline {
             }
             // Post can be used both on individual stages and for the entire build.
             post {
-                always {
-                    archive "**"
-                    junit 'test-report.xml'
-                    junit 'reports/server/mocha/test-results.xml'
-                    // publish html
+                // always {
+                //     //archive "**"
+                //     // // ADD TESTS REPORTS HERE
+                //     // junit 'test-report.xml'
+                //     // junit 'reports/server/mocha/test-results.xml'
 
-                    // Notify slack or some such
-                }
+                //     // // publish html
+                //     // publishHTML target: [
+                //     //   allowMissing: false,
+                //     //   alwaysLinkToLastBuild: false,
+                //     //   keepAll: true,
+                //     //   reportDir: 'reports/coverage',
+                //     //   reportFiles: 'index.html',
+                //     //   reportName: 'Code Coverage'
+                //     // ]
+                // }
                 success {
+                    slackSend (color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                     echo "Git tagging"
                     sh'''
                         git config --global user.email "jenkins@jmail.com"
                         git config --global user.name "jenkins-ci"
                         git tag -a ${JENKINS_TAG} -m "JENKINS automated commit"
-                        # git push https://${GIT_CREDENTIALS_USR}:${GIT_CREDENTIALS_PSW}@${GITLAB_DOMAIN}/${GITLAB_PROJECT}/${APP_NAME}.git --tags
+                        git push https://${GIT_CREDENTIALS_USR}:${GIT_CREDENTIALS_PSW}@${GITLAB_DOMAIN}/${GITLAB_USERNAME}/${APP_NAME}.git --tags
                     '''
                 }
                 failure {
+                    slackSend (color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                     echo "FAILURE"
                 }
             }
@@ -120,7 +161,7 @@ pipeline {
         stage("node-bake") {
             agent {
                 node {
-                    label "master"  
+                    label "master"
                 }
             }
             when {
@@ -150,7 +191,7 @@ pipeline {
         stage("node-deploy") {
             agent {
                 node {
-                    label "master"  
+                    label "master"
                 }
             }
             when {
@@ -169,38 +210,68 @@ pipeline {
                     oc rollout latest dc/${APP_NAME}
                 '''
                 echo '### Verify OCP Deployment ###'
-                openshiftVerifyDeployment depCfg: env.APP_NAME, 
-                    namespace: env.PROJECT_NAMESPACE, 
-                    replicaCount: '1', 
-                    verbose: 'false', 
-                    verifyReplicaCount: 'true', 
+                openshiftVerifyDeployment depCfg: env.APP_NAME,
+                    namespace: env.PROJECT_NAMESPACE,
+                    replicaCount: '1',
+                    verbose: 'false',
+                    verifyReplicaCount: 'true',
                     waitTime: '',
                     waitUnit: 'sec'
             }
         }
-        stage("e2e test") {
-            agent {
-                node {
-                    label "jenkins-slave-npm"
-                }
-            }
-            when {
-                expression { GIT_BRANCH ==~ /(.*master|.*develop)/ }
-            }
-            steps {
-              unstash 'source'
+        // stage("e2e test") {
+        //   agent {
+        //         node {
+        //             label "jenkins-slave-npm"
+        //         }
+        //     }
+        //     when {
+        //         expression { GIT_BRANCH ==~ /(.*master|.*develop)/ }
+        //     }
+        //     steps {
+        //       unstash 'source'
 
-              echo '### Install deps ###'
-              sh 'npm install'
+        //       echo '### Install deps ###'
+        //       sh 'npm install'
 
-              echo '### Running end to end tests ###'
-              sh 'npm run e2e:ci'
-            }
-            post {
-                always {
-                    junit 'reports/e2e/specs/*.xml'
-                }
-            }
-        }
+        //       echo '### Running end to end tests ###'
+        //       sh 'npm run e2e:jenkins'
+        //     }
+        //     post {
+        //         always {
+        //             junit 'reports/e2e/specs/*.xml'
+        //         }
+        //     }
+        // }
+        // stage('Arachni Scan') {
+        //   agent {
+        //       node {
+        //           label "jenkins-slave-arachni"
+        //       }
+        //   }
+        //   when {
+        //       expression { GIT_BRANCH ==~ /(.*master|.*develop)/ }
+        //   }
+        //   steps {
+        //       sh '''
+        //           /arachni/bin/arachni http://${E2E_TEST_ROUTE} --report-save-path=arachni-report.afr
+        //           /arachni/bin/arachni_reporter arachni-report.afr --reporter=xunit:outfile=report.xml --reporter=html:outfile=web-report.zip
+        //           unzip web-report.zip -d arachni-web-report
+        //       '''
+        //   }
+        //   post {
+        //       always {
+        //           junit 'report.xml'
+        //           publishHTML target: [
+        //               allowMissing: false,
+        //               alwaysLinkToLastBuild: false,
+        //               keepAll: true,
+        //               reportDir: 'arachni-web-report',
+        //               reportFiles: 'index.html',
+        //               reportName: 'Arachni Web Crawl'
+        //               ]
+        //       }
+        //   }
+        // }
     }
 }

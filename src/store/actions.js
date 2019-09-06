@@ -46,7 +46,8 @@ export default {
     // debugger
     const todo = {
       title: state.newTodo,
-      completed: false
+      completed: false,
+      important: false
     };
     // console.info("TESTINT BLAH BLAH ", todo);
     return axios
@@ -99,6 +100,7 @@ export default {
     let i = state.todos.findIndex(todo => todo._id === id);
     if (important) {
       // TODO - add commit imporant here!
+      commit("MARK_TODO_IMPORTANT", i);
     } else {
       commit("MARK_TODO_COMPLETED", i);
     }

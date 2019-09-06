@@ -1,6 +1,10 @@
-const seleniumServer = require("selenium-server");
-const chromedriver = require("chromedriver");
+// const seleniumServer = require("selenium-server");
+// const chromedriver = require("chromedriver");
 const SCREENSHOT_PATH = "./reports/screenshots/";
+
+// console.log("INFO ABOUT STUFF - ", seleniumServer.path)
+
+// console.log("INFO ABOUT STUFF - ", chromedriver.path)
 
 module.exports = {
   src_folders: [
@@ -10,22 +14,14 @@ module.exports = {
   // urlToTest: process.env.E2E_ENV ? `http://app-name-labs-${process.env.E2E_ENV}.apps.company-xyz.rht-labs.com`: "http://localhost:8080",
   output_folder: "./reports/e2e",
   selenium: {
-    start_process: true, // tells nightwatch to start/stop the selenium process
-    server_path: seleniumServer.path,
-    host: "127.0.0.1",
-    port: 4444,
-    cli_args: {
-      "webdriver.chrome.driver": chromedriver.path
-    }
+    start_process: false // tells nightwatch to start/stop the selenium process
   },
   test_settings: {
     jenkins: {
+      selenium_host: process.env.SELENIUM_HOST || "127.0.0.1",
+      selenium_port: process.env.SELENIUM_PORT || 8084,
+      use_ssl: process.env.SELENIUM_SSL || false,
       end_session_on_fail: false,
-      screenshots: {
-        enabled: true,
-        on_failure: true,
-        path: "./reports/e2e"
-      },
       desiredCapabilities: {
         browserName: "chrome",
         javascriptEnabled: true,

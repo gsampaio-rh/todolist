@@ -131,7 +131,7 @@ describe("updateTodo", () => {
       .updateTodo({ commit, state }, { id: 1, important: true })
       .then(() => {
         // TODO - test goes here!
-
+        expect(commit.firstCall.args[0]).toBe("MARK_TODO_IMPORTANT");
         done();
       });
   });

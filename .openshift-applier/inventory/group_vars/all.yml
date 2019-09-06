@@ -28,7 +28,13 @@ openshift_cluster_content:
         params_from_vars: '{{ build }}'
         namespace: '{{ ci_cd_namespace }}'
         tags:
-          - build
+        - build
+      - name: todolist-pipeline
+        template: "{{ playbook_dir }}/templates/ocp-pipeline.yml"
+        params: "{{ playbook_dir }}/params/ocp-pipeline"
+        namespace: "{{ ci_cd_namespace }}"
+        tags:
+        - pipeline
   - object: deploy-dev
     content:
       - name: todolist

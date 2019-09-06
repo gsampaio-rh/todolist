@@ -10,9 +10,11 @@ const Todo = require('../api/todo/todo.model');
 Todo.find({}).remove(function() {
   Todo.create({
     title : 'Learn some stuff about MongoDB',
-    completed: false
+    completed: false,
+    important: false
   }, {
     title : 'Play with NodeJS',
-    completed: true
+    completed: true,
+    important: false
   });
 });
