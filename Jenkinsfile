@@ -37,8 +37,9 @@ pipeline {
                 }
             }
             steps {
-                slackSend (color: '#80B0C4', message: """*[REQUEST]* *START BUILD ${env.JOB_BASE_NAME} ${env.BUILD_DISPLAY_NAME}?* ${env.BUILD_URL} 
-                ```${env.JOB_BASE_NAME} ${env.BUILD_DISPLAY_NAME} \n${env.JOB_URL}```""")
+                slackSend (color: '#80B0C4', message: """alsdkjlasdjasldajsldkasjldkasjldkasjdlaskjdlaskjdlaskjdlaksjdlaskdjalskdjasldkjaslkdjalskdjlaskjdlaksjdlaksjdlsaalsdkjlasdjasldajsldkasjldkasjldkasjdlaskjdlaskjdlaskjdlaksjdlaskdjalskdjasldkjaslkdjalskdjlaskjdlaksjdlaksjdlsaalsdkjlasdjasldajsldkasjldkasjldkasjdlaskjdlaskjdlaskjdlaksjdlaskdjalskdjasldkjaslkdjalskdjlaskjdlaksjdlaksjdlsaalsdkjlasdjasldajsldkasjldkasjldkasjdlaskjdlaskjdlaskjdlaksjdlaskdjalskdjasldkjaslkdjalskdjlaskjdlaksjdlaksjdlsaalsdkjlasdjasldajsldkasjldkasjldkasjdlaskjdlaskjdlaskjdlaksjdlaskdjalskdjasldkjaslkdjalskdjlaskjdlaksjdlaksjdlsaalsdkjlasdjasldajsldkasjldkasjldkasjdlaskjdlaskjdlaskjdlaksjdlaskdjalskdjasldkjaslkdjalskdjlaskjdlaksjdlaksjdlsaalsdkjlasdjasldajsldkasjldkasjldkasjdlaskjdlaskjdlaskjdlaksjdlaskdjalskdjasldkjaslkdjalskdjlaskjdlaksjdlaksjdlsaalsdkjlasdjasldajsldkasjldkasjldkasjdlaskjdlaskjdlaskjdlaksjdlaskdjalskdjasldkjaslkdjalskdjlaskjdlaksjdlaksjdlsa""")
+                slackSend (color: '#80B0C4', message: """*[REQUEST] TO START BUILD \n${env.JOB_BASE_NAME} ${env.BUILD_DISPLAY_NAME}?* ${env.BUILD_URL}
+                    ```${env.JOB_BASE_NAME} ${env.BUILD_DISPLAY_NAME} \n${env.JOB_URL}```""")
                 // send build started notifications
                 script {
                     def IS_APPROVED = input(
